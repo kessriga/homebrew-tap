@@ -1,0 +1,19 @@
+name: Formula style
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  style:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          brew tap-new --no-git kessriga/tap
+          cp Formula/ghostty-fork.rb "$(brew --repository kessriga/tap)/Formula/ghostty-fork.rb"
+          brew style --formula kessriga/tap/ghostty-fork
