@@ -15,10 +15,7 @@ class GhosttyFork < Formula
   depends_on :macos
 
   def install
-    ENV["GHOSTTY_ZIG"] = formula_opt_bin("zig@0.15")/"zig"
-    ENV["GHOSTTY_LIBTOOL"] = formula_opt_bin("llvm@20")/"llvm-libtool-darwin"
-    ENV["GHOSTTY_MSGFMT"] = formula_opt_bin("gettext")/"msgfmt"
-    ENV["ZIG_GLOBAL_CACHE_DIR"] = buildpath/".zig-global-cache"
+    configure_build_tools
     system "bash", "macos/build-local.sh", version.to_s
     prefix.install "zig-out/Ghostty.app"
 
@@ -69,5 +66,21 @@ class GhosttyFork < Formula
     assert_equal stable.specs.fetch(:revision),
                  shell_output("/usr/bin/plutil -extract GhosttyForkRevision raw '#{app}/Contents/Info.plist'").strip
     system "/usr/bin/codesign", "--verify", "--deep", "--strict", app
+  end
+
+  private
+
+  def configure_build_tools
+    ENV["GHOSTTY_ZIG"] = formula_opt_bin("zig@0.15")/"zig"
+    ENV["GHOSTTY_LIBTOOL"] = formula_opt_bin("llvm@20")/"llvm-libtool-darwin"
+    ENV["GHOSTTY_MSGFMT"] = formula_opt_bin("gettext")/"msgfmt"
+    ENV["ZIG_GLOBAL_CACHE_DIR"] = buildpath/".zig-global-cache"
+    tools = buildpath/".homebrew-tools"
+    (tools/"xcodebuild").write <<~SH
+      #!/bin/sh
+      exec /usr/bin/xcodebuild -IDEPackageSupportDisableManifestSandbox=1 "$@"
+    SH
+    (tools/"xcodebuild").chmod 0755
+    ENV.prepend_path "PATH", tools
   end
 end

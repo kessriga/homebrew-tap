@@ -16,6 +16,10 @@ Building requires full Xcode 26 or later, its Metal toolchain, and the declared 
 preserves Ghostty's normal bundle identifier, stamps the source revision, and disables automatic update checks in the
 bundle. The effective Ghostty config must also set `auto-update = off` to override saved preferences.
 
+Homebrew's build sandbox remains enabled. A build-local Xcode wrapper disables only Swift Package Manager's nested
+manifest sandbox, which macOS cannot start inside another sandbox. It does not change saved Xcode settings. See the
+[Homebrew discussion](https://github.com/orgs/Homebrew/discussions/59) for this restriction.
+
 The formula is keg-only: building does not replace or relink the running app. From
 [kessriga/dotfiles](https://github.com/kessriga/dotfiles), deploy the Ghostty config, quit Ghostty, then run:
 
