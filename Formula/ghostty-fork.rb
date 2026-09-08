@@ -32,18 +32,21 @@ class GhosttyFork < Formula
     %w[SUEnableAutomaticChecks SUAutomaticallyUpdate SUAllowsAutomaticUpdates].each do |key|
       system "/usr/bin/plutil", "-replace", key, "-bool", "false", info
     end
-    system "/usr/bin/codesign", "--force", "--deep", "--sign", "-", "--options=0", app
-    system "/usr/bin/codesign", "--verify", "--deep", "--strict", app
-
     (bin/"ghostty").write <<~SH
       #!/bin/sh
       exec /Applications/Ghostty.app/Contents/MacOS/ghostty "$@"
     SH
-    man1.install app/"Contents/Resources/man/man1/ghostty.1"
-    man5.install app/"Contents/Resources/man/man5/ghostty.5"
-    bash_completion.install app/"Contents/Resources/bash-completion/completions/ghostty.bash" => "ghostty"
-    fish_completion.install app/"Contents/Resources/fish/vendor_completions.d/ghostty.fish"
-    zsh_completion.install app/"Contents/Resources/zsh/site-functions/_ghostty"
+    man1.install_symlink app/"Contents/Resources/man/man1/ghostty.1"
+    man5.install_symlink app/"Contents/Resources/man/man5/ghostty.5"
+    bash_completion.install_symlink app/"Contents/Resources/bash-completion/completions/ghostty.bash" => "ghostty"
+    fish_completion.install_symlink app/"Contents/Resources/fish/vendor_completions.d/ghostty.fish"
+    zsh_completion.install_symlink app/"Contents/Resources/zsh/site-functions/_ghostty"
+  end
+
+  def post_install
+    app = prefix/"Ghostty.app"
+    system "/usr/bin/codesign", "--force", "--deep", "--sign", "-", "--options=0", app
+    system "/usr/bin/codesign", "--verify", "--deep", "--strict", app
   end
 
   def caveats
@@ -54,7 +57,8 @@ class GhosttyFork < Formula
       From your Dotfiles checkout, deploy `auto-update = off`, quit Ghostty,
       then run `mise run activate-ghostty --replace-existing`.
       Activation backs up the existing app, migrates the official cask,
-      links this keg, and points /Applications/Ghostty.app at the fork.
+      links and pins this keg, and points /Applications/Ghostty.app at the fork.
+      For later versions, quit Ghostty and use `mise run update-ghostty`.
     EOS
   end
 

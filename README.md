@@ -35,6 +35,15 @@ separately if desired.
 
 ## Updates and verification
 
+Activation pins the formula so ordinary `brew upgrade` or `brew bundle` cannot move the active app to another keg. After
+reviewing a new formula version, quit Ghostty and run `mise run update-ghostty` from another terminal. This command
+backs up the current app before unpinning and upgrading, validates the new app, and restores the pin. Failed updates
+attempt to restore the signed backup and pin, and report any incomplete recovery. Do not unpin the package manually;
+Dotfiles verification and bootstrap reject that state.
+
+The formula links manuals and completions without moving resources out of the app. It signs the bundle in
+`post_install`, after Homebrew's binary fixups, and verifies that final signature.
+
 The formula is the source of truth for the fork commit and version. Change both only after reviewing the fork and
 running its renderer tests, Metal regression harness, and a real-window transparency check. The fork's
 [`docs/fork-maintenance.md`](https://github.com/kessriga/ghostty/blob/fix/colored-cell-opacity/docs/fork-maintenance.md)
