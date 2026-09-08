@@ -45,9 +45,9 @@ class GhosttyFork < Formula
 
   post_install_steps do
     run "/usr/bin/codesign",
-        args: ["--force", "--deep", "--sign", "-", "--options=0", "Ghostty.app"],
-        chdir: ".", writable_paths: ["Ghostty.app"]
-    run "/usr/bin/codesign", args: ["--verify", "--deep", "--strict", "Ghostty.app"], chdir: "."
+        args: ["--force", "--deep", "--sign", "-", "--options=0", "{{prefix}}/Ghostty.app"],
+        writable_paths: ["Ghostty.app"], writable_base: :prefix
+    run "/usr/bin/codesign", args: ["--verify", "--deep", "--strict", "{{prefix}}/Ghostty.app"]
   end
 
   def caveats
