@@ -13,6 +13,7 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - run: brew update
       - run: |
           brew tap-new --no-git kessriga/tap
           cp Formula/ghostty-fork.rb "$(brew --repository kessriga/tap)/Formula/ghostty-fork.rb"

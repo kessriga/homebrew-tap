@@ -43,10 +43,11 @@ class GhosttyFork < Formula
     zsh_completion.install_symlink app/"Contents/Resources/zsh/site-functions/_ghostty"
   end
 
-  def post_install
-    app = prefix/"Ghostty.app"
-    system "/usr/bin/codesign", "--force", "--deep", "--sign", "-", "--options=0", app
-    system "/usr/bin/codesign", "--verify", "--deep", "--strict", app
+  post_install_steps do
+    run "/usr/bin/codesign",
+        args: ["--force", "--deep", "--sign", "-", "--options=0", "Ghostty.app"],
+        chdir: ".", writable_paths: ["Ghostty.app"]
+    run "/usr/bin/codesign", args: ["--verify", "--deep", "--strict", "Ghostty.app"], chdir: "."
   end
 
   def caveats

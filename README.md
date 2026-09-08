@@ -42,7 +42,8 @@ attempt to restore the signed backup and pin, and report any incomplete recovery
 Dotfiles verification and bootstrap reject that state.
 
 The formula links manuals and completions without moving resources out of the app. It signs the bundle in
-`post_install`, after Homebrew's binary fixups, and verifies that final signature.
+`post_install_steps`, after Homebrew's binary fixups, and verifies that final signature. Run `brew update` before
+building if Homebrew does not recognize this API.
 
 The formula is the source of truth for the fork commit and version. Change both only after reviewing the fork and
 running its renderer tests, Metal regression harness, and a real-window transparency check. The fork's
