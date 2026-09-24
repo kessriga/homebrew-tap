@@ -24,4 +24,5 @@ jobs:
           brew style --formula kessriga/tap/ghostty-fork
           brew trust --formula kessriga/tap/ghostty-fork
           cd "$(brew --repository)"
+          ./bin/brew install-bundler-gems --add-groups=formula_test
           ./bin/brew ruby -- "$tap/test/ghostty_fork_test.rb"
