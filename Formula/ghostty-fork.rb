@@ -1,8 +1,8 @@
 class GhosttyFork < Formula
   desc "Ghostty with corrected macOS colored-cell transparency"
   homepage "https://github.com/kessriga/ghostty"
-  url "https://github.com/kessriga/ghostty.git", revision: "662ee3b4830b2777b3c4c267eaf502c7cc46c8dc"
-  version "1.3.1-opacityfix.2"
+  url "https://github.com/kessriga/ghostty.git", revision: "a7ca62e8f50c2be41acce3e4009f7ec40ecd38e0"
+  version "1.3.1-opacityfix.3"
   license "MIT"
 
   keg_only "activation must first migrate the official Ghostty cask"
@@ -86,6 +86,24 @@ class GhosttyFork < Formula
       exec /usr/bin/xcodebuild -IDEPackageSupportDisableManifestSandbox=1 "$@"
     SH
     (tools/"xcodebuild").chmod 0755
+    (tools/"xcrun").write <<~SH
+      #!/bin/bash
+      set -euo pipefail
+      if [[ $# == 3 && $1 == --sdk && $2 == macosx && $3 == --show-sdk-path ]]; then
+        sdk_version=$(/usr/bin/xcrun --sdk macosx --show-sdk-version)
+        if [[ $sdk_version == 27.* ]]; then
+          sdk=/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk
+          if [[ ! -d "$sdk" ]]; then
+            printf 'ghostty-fork: Zig 0.15.2 with SDK 27 requires existing %s\\n' "$sdk" >&2
+            exit 1
+          fi
+          printf '%s\\n' "$sdk"
+          exit 0
+        fi
+      fi
+      exec /usr/bin/xcrun "$@"
+    SH
+    (tools/"xcrun").chmod 0755
     ENV.prepend_path "PATH", tools
   end
 end

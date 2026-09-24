@@ -20,6 +20,11 @@ Homebrew's build sandbox remains enabled. A build-local Xcode wrapper disables o
 manifest sandbox, which macOS cannot start inside another sandbox. It does not change saved Xcode settings. See the
 [Homebrew discussion](https://github.com/orgs/Homebrew/discussions/59) for this restriction.
 
+With SDK 27, Zig 0.15.2 requires the existing CLT SDK at `/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk`. A
+build-local `xcrun` wrapper selects it only for the exact macOS SDK-path query; other calls still use Apple's tool.
+Older SDKs keep their normal selection. If the fallback SDK is missing, the build stops without installing it. The
+native Xcode app and Metal tools still use SDK 27.
+
 The formula is keg-only: building does not replace or relink the running app. From
 [kessriga/dotfiles](https://github.com/kessriga/dotfiles), deploy the Ghostty config, quit Ghostty, then run:
 

@@ -13,8 +13,16 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - run: brew update
       - run: |
           brew tap-new --no-git kessriga/tap
-          cp Formula/ghostty-fork.rb "$(brew --repository kessriga/tap)/Formula/ghostty-fork.rb"
+          tap=$(brew --repository kessriga/tap)
+          cp Formula/ghostty-fork.rb "$tap/Formula/ghostty-fork.rb"
+          cp -R test "$tap/test"
           brew style --formula kessriga/tap/ghostty-fork
+          brew trust --formula kessriga/tap/ghostty-fork
+          cd "$(brew --repository)"
+          ./bin/brew install-bundler-gems --add-groups=formula_test
+          ./bin/brew ruby -- "$tap/test/ghostty_fork_test.rb"
