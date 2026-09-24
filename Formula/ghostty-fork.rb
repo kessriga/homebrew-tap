@@ -1,7 +1,9 @@
 class GhosttyFork < Formula
   desc "Ghostty with corrected macOS colored-cell transparency"
   homepage "https://github.com/kessriga/ghostty"
-  url "https://github.com/kessriga/ghostty.git", revision: "a7ca62e8f50c2be41acce3e4009f7ec40ecd38e0"
+  url "https://github.com/kessriga/ghostty.git",
+      using:    :git,
+      revision: "a7ca62e8f50c2be41acce3e4009f7ec40ecd38e0"
   version "1.3.1-opacityfix.3"
   license "MIT"
 

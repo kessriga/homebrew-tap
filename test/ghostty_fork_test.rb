@@ -14,8 +14,9 @@ class GhosttyForkTest < Minitest::Test
     stable = formula.stable
     raise "Expected a stable source pin" unless stable
 
-    assert_equal ["1.3.1-opacityfix.3", "a7ca62e8f50c2be41acce3e4009f7ec40ecd38e0"],
-                 [formula.version.to_s, stable.specs.fetch(:revision)]
+    assert_equal ["1.3.1-opacityfix.3", GitDownloadStrategy,
+                  { revision: "a7ca62e8f50c2be41acce3e4009f7ec40ecd38e0" }],
+                 [formula.version.to_s, stable.downloader.class, stable.specs]
   end
 
   sig { void }
