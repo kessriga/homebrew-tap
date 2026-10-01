@@ -33,9 +33,29 @@ class GhosttyForkTest < Minitest::Test
       selector = tools/"xcrun"
       assert_predicate selector, :executable?
       assert_equal tools.to_s, ENV.fetch("PATH").split(File::PATH_SEPARATOR).first
-      assert_equal "#!/bin/sh\nexec /usr/bin/xcodebuild -IDEPackageSupportDisableManifestSandbox=1 \"$@\"\n",
-                   (tools/"xcodebuild").read
+      assert_equal <<~SH, (tools/"xcodebuild").read
+        #!/bin/sh
+        if [ "$1" != "-create-xcframework" ]; then
+          set -- 'OTHER_SWIFT_FLAGS=$(inherited) -disable-sandbox' "$@"
+        fi
+        exec /usr/bin/xcodebuild -IDEPackageSupportDisableManifestSandbox=1 "$@"
+      SH
       assert system("/bin/bash", "-n", selector.to_s)
+
+      fake_xcodebuild = Pathname(directory)/"apple-xcodebuild"
+      fake_xcodebuild.write "#!/bin/sh\nprintf '<%s>\\n' \"$@\"\nexit 7\n"
+      fake_xcodebuild.chmod 0755
+      isolated_xcodebuild = tools/"isolated-xcodebuild"
+      isolated_xcodebuild.write (tools/"xcodebuild").read.gsub("/usr/bin/xcodebuild", fake_xcodebuild.to_s)
+      isolated_xcodebuild.chmod 0755
+      [["-target", "Ghostty", "-configuration", "Release Local"],
+       ["-create-xcframework", "-library", "a library.a"]].each do |args|
+        output, error, status = Open3.capture3(isolated_xcodebuild.to_s, *args)
+        expected = ["-IDEPackageSupportDisableManifestSandbox=1"]
+        expected << "OTHER_SWIFT_FLAGS=$(inherited) -disable-sandbox" if args.first != "-create-xcframework"
+        assert_equal [(expected + args).map { |arg| "<#{arg}>\n" }.join, "", 7],
+                     [output, error, status.exitstatus]
+      end
 
       # Substitute only external boundaries in a disposable copy of the generated selector.
       sdk = Pathname(directory)/"MacOSX26.5.sdk"
