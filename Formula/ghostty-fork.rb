@@ -85,6 +85,9 @@ class GhosttyFork < Formula
     tools = buildpath/".homebrew-tools"
     (tools/"xcodebuild").write <<~SH
       #!/bin/sh
+      if [ "$1" != "-create-xcframework" ]; then
+        set -- 'OTHER_SWIFT_FLAGS=$(inherited) -disable-sandbox' "$@"
+      fi
       exec /usr/bin/xcodebuild -IDEPackageSupportDisableManifestSandbox=1 "$@"
     SH
     (tools/"xcodebuild").chmod 0755
